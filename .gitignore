@@ -1,0 +1,9 @@
+## Ignora los archivos txt:
+.txt
+
+## Ignora las variables de entorno:
+.env
+
+## Ignora los archivos creados por npm:
+**/node_modules/
+
