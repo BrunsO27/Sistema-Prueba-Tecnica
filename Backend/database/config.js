@@ -8,7 +8,7 @@ const dbSistemita = new Sequelize(process.env.DB_NAME,
     host: 'localhost',   // Equipo con tecnologias instaladas
     // host: 'mysql',    // Equipo con docker
     dialect: 'mysql',
-    logging: false,
+    logging: console.log,
 });
 
 module.exports = {
