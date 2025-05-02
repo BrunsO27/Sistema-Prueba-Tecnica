@@ -9,9 +9,11 @@ const login = async (req = request,res = response) => {
 
     const { autenticacion, password } = req.body;
 
-    const auth = toString(autenticacion)
+    //const auth = toString(autenticacion)
 
-    if (auth.includes('@')) {
+    console.log(autenticacion);
+
+    if (autenticacion.includes('@')) {
 
         const correo = autenticacion;
 
@@ -22,8 +24,6 @@ const login = async (req = request,res = response) => {
                     correo
                 }
             })
-
-            console.log(usuario,'******')
     
             if (!usuario) {
                 return res.status(400).json({

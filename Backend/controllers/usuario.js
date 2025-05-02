@@ -46,31 +46,18 @@ const obtenerUsuarios = async (req = request,res = response) => {
 
 const actualizarUsuarios = async (req,res) => {
 
-    const numCuenta = req.params.id;
+    const numCuenta = req.params.numCuenta;
     const { numCuenta: _,password, correo, ...resto } = req.body;
-
-    // TODO validar contra base de datos
 
     if ( password ) {
         const salt = bcryptjs.genSaltSync();
         resto.password = bcryptjs.hashSync(password, salt);
     }
 
-    if ( role ) {
-        const roleId = await Role.findOne({ 
-            where : {
-                role
-            }
-        }); 
-
-        resto.role_id = roleId.id;
-    }
-
     const usuario = await Usuario.findByPk(numCuenta);
     await usuario.update(resto);
 
     res.json({
-        msg: 'Petición put a mi api - Controlador',
         usuario
     });
 }

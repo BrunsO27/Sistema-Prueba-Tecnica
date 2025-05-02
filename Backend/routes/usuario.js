@@ -21,7 +21,7 @@ router.get('/', [
         validarCampos
 ],obtenerUsuarios );
 
-router.put('/:id', [
+router.put('/:numCuenta', [
         check('numCuenta', 'El número de cuenta debe tener 9 dígitos numéricos').isLength({ min: 9, max: 9 }).isNumeric(),
         check('numCuenta').custom( existeNumCuentaUsuario ),
         validarCampos
@@ -35,9 +35,9 @@ router.post('/', [
         validarCampos
 ], crearUsuario);
 
-router.delete('/:id', [
+router.delete('/:numCuenta', [
         validarJWT,
-        check('numCuenta', 'No es un ID válido').isLength({ min: 9, max: 9 }).isNumeric(),
+        check('numCuenta', 'No es un numero de cueanta válido').isLength({ min: 9, max: 9 }).isNumeric(),
         check('numCuenta').custom( existeNumCuentaUsuario ),
         validarCampos
 ],eliminarUsuario);
