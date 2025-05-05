@@ -1,11 +1,13 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import vuetify from './plugins/vuetify'; // Importa el archivo de vuetify
-//import router from './router'; // Si lo estás usando
+import vuetify from './plugins/vuetify';
+import '@mdi/font/css/materialdesignicons.css';
+
+import router from './router';
 
 const app = createApp(App);
 
-//app.use(router);
-app.use(vuetify); // Aquí estamos usando Vuetify
+app.use(router);
+app.use(vuetify);
 
 app.mount('#app');

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <v-btn color="primary">¡Haz clic!</v-btn>
+      <RouterView />
     </v-main>
   </v-app>
 </template>
