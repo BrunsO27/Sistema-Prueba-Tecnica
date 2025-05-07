@@ -5,7 +5,7 @@
       <v-card-title class="text-h5 text-center">Iniciar sesión</v-card-title>
       <v-card-text>
         <!-- Formulario con 100% de ancho para ocupar todo el espacio disponible -->
-        <v-form @submit.prevent="handleLogin">
+        <v-form @submit.prevent="login">
           <v-row>
             <!-- Primer campo de texto para el correo -->
             <v-col cols="12" sm="12" md="12">
@@ -31,6 +31,14 @@
               ></v-text-field>
             </v-col>
 
+            <v-col cols="12">
+              <v-checkbox
+                v-model="rememberMe"
+                label="Recuérdame"
+                color="primary"
+              ></v-checkbox>
+            </v-col>
+
             <!-- Botón de envío de formulario -->
             <v-col cols="12">
               <v-btn type="submit" color="primary" block> Entrar </v-btn>
@@ -40,26 +48,63 @@
       </v-card-text>
     </v-card>
   </v-container>
+
+  <template>
+    <v-snackbar v-model="snackbar" :timeout="4000" color="red" location="top center">
+      {{ snackbarMessage }}
+    </v-snackbar>
+  </template>
 </template>
 
 <script>
+import { usuariosApi } from '@/api/UsuariosApi';
+
 export default {
   name: 'LoginView',
   data() {
     return {
       autenticacion: '',
       password: '',
+      snackbar: false,
+      snackbarMessage: '',
+      rememberMe: false,
     };
   },
   methods: {
-    handleLogin() {
-      // Aquí puedes hacer una petición a tu backend
-      if (this.autenticacion === 'admin@example.com' && this.password === 'admin') {
-        alert('Inicio de sesión exitoso');
-      } else {
-        alert('Correo o contraseña incorrectos');
+    async login() {
+      try {
+        const respuesta = await usuariosApi.post('/auth/login', {
+          autenticacion: this.autenticacion,
+          password: this.password,
+        })
+
+        const token = respuesta.data.token;
+
+        if (this.rememberMe) {
+          localStorage.setItem('autenticacion', this.autenticacion);
+          localStorage.setItem('password', this.password);
+        }
+
+        sessionStorage.setItem('token', token);
+
+        this.$router.push('/');
+      } catch (error) {
+        this.snackbarMessage = error.response?.data?.msg || 'Error al iniciar sesión';
+        this.snackbar = true;
+        console.error(error);
       }
-    },
+    }
   },
+
+  mounted() {
+    const storedAutenticacion = localStorage.getItem('autenticacion');
+    const storedPassword = localStorage.getItem('password');
+
+    if (storedAutenticacion && storedPassword) {
+      this.autenticacion = storedAutenticacion;
+      this.password = storedPassword;
+      this.rememberMe = true;
+    }
+  }
 };
 </script>

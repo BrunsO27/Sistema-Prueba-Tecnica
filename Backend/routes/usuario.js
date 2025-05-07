@@ -16,6 +16,7 @@ const validarCampos = require('../middlewares/validar-campos');
 const router = Router();
 
 router.get('/', [
+        validarJWT,
         query('limite', 'El límite tiene que ser un número positivo').optional().isInt({min: 1}),
         query('desde', 'El número de página tiene que ser un número positivo').optional({min: 0}).isInt(),
         validarCampos
@@ -28,6 +29,10 @@ router.put('/:numCuenta', [
 ],actualizarUsuarios);
 
 router.post('/', [
+        validarJWT,
+        check('numCuenta', 'El número de cuenta es obligatorio').not().isEmpty(),
+        check('numCuenta', 'El número de cuenta debe tener 9 dígitos numéricos').isLength({ min: 9, max: 9 }).isNumeric(),
+        check('numCuenta').custom( existeNumCuentaUsuario ),
         check('nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('correo', 'El correo no es válido').isEmail(),
         check('correo').custom( existeCorreo ),

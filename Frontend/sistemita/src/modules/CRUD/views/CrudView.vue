@@ -1,6 +1,6 @@
 <template>
   <v-sheet border rounded>
-    <v-data-table :headers="headers" :items="books">
+    <v-data-table :headers="headers" :items="usuarios">
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>
@@ -17,6 +17,16 @@
             text="Ingresar"
             border
             @click="irLogin"
+          ></v-btn>
+
+          <v-btn
+            v-if="verificarAutenticacion()"
+            class="me-2"
+            prepend-icon="mdi-login"
+            rounded="lg"
+            text="Salir"
+            border
+            @click="logOut"
           ></v-btn>
 
           <!-- Boton de carga de data-->
@@ -49,33 +59,22 @@
         </v-chip>
       </template>
 
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:item.acciones="{ item }">
         <div class="d-flex ga-2 justify-end">
           <v-icon
             color="medium-emphasis"
             icon="mdi-pencil"
             size="small"
-            @click="edit(item.id)"
+            @click="edit(item.numCuenta)"
           ></v-icon>
 
           <v-icon
             color="medium-emphasis"
             icon="mdi-delete"
             size="small"
-            @click="remove(item.id)"
+            @click="remove(item.numCuenta)"
           ></v-icon>
         </div>
-      </template>
-
-      <template v-slot:no-data>
-        <v-btn
-          prepend-icon="mdi-backup-restore"
-          rounded="lg"
-          text="Reset data"
-          variant="text"
-          border
-          @click="reset"
-        ></v-btn>
       </template>
     </v-data-table>
   </v-sheet>
@@ -130,6 +129,21 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Dialogo de advertencia -->
+  <template
+    ><v-dialog v-model="dialogAdvertencia" max-width="400">
+      <v-card>
+        <v-card-title class="text-h6"> Acceso Denegado </v-card-title>
+
+        <v-card-text> Debes iniciar sesión para realizar esta acción. </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Cerrar" @click="dialogAdvertencia = false"></v-btn>
+        </v-card-actions>
+      </v-card> </v-dialog
+  ></template>
 </template>
 
 <script>
@@ -140,64 +154,90 @@ export default {
   name: 'CrudView',
   data() {
     const adapter = useDate();
-
     return {
       dialog: false, // Estado inicial del diálogo
       isEditing: false,
+      dialogAdvertencia: false,
       record: {
-        title: '',
-        author: '',
-        genre: '',
-        year: adapter.getYear(adapter.date()),
-        pages: 1,
+        numCuenta: '',
+        nombre: '',
+        fechaNacimiento: '',
+        correo: '',
+        password: '',
+        telefono: '',
+        estado: true,
       },
       mensaje: 'Componente Cargado',
       adapter,
-      books: [],
+      usuarios: [],
       headers: [
-        { title: 'Title', key: 'title', align: 'start' },
-        { title: 'Author', key: 'author' },
-        { title: 'Genre', key: 'genre' },
-        { title: 'Year', key: 'year', align: 'end' },
-        { title: 'Pages', key: 'pages', align: 'end' },
-        { title: 'Actions', key: 'actions', align: 'end', sortable: false },
+        { title: 'Número de Cuenta', key: 'numCuenta', align: 'start' },
+        { title: 'Nombre', key: 'nombre', align: 'start' },
+        { title: 'Fecha de Nacimiento', key: 'fechaNacimiento', align: 'center' },
+        { title: 'Correo', key: 'correo', align: 'start' },
+        { title: 'Contraseña', key: 'password', align: 'start' },
+        { title: 'Teléfono', key: 'telefono', align: 'center' },
+        { title: 'Estado', key: 'estado', align: 'center' },
+        { title: '', key: 'acciones', align: 'end' },
       ],
     };
   },
-  mounted() {
-    this.reset();
-  },
   methods: {
+    verificarAutenticacion() {
+      const token = sessionStorage.getItem('token');
+      return !!token; // true si hay token
+    },
+    logOut() {
+      sessionStorage.removeItem('token');
+      this.$router.replace('/');
+    },
     irLogin() {
-      this.$router.push('/login');
+      if (this.verificarAutenticacion()) {
+        this.$router.go('/');
+      } else {
+        this.$router.push('/login');
+      }
+
     },
     cargarData() {
-      console.log('Metodo para cargar data');
+      if (!this.verificarAutenticacion()) {
+        this.dialogAdvertencia = true;
+        return;
+      }
+
+      
     },
     add() {
+      if (!this.verificarAutenticacion()) {
+        this.dialogAdvertencia = true;
+        return;
+      }
+
       this.isEditing = false;
       this.record = {
-        ...this.record,
-        title: '',
-        author: '',
-        genre: '',
-        year: this.adapter.getYear(this.adapter.date()),
-        pages: 1,
+        numCuenta: '',
+        nombre: '',
+        fechaNacimiento: '',
+        correo: '',
+        password: '',
+        telefono: '',
+        estado: true,
       };
       this.dialog = true;
     },
-    edit(id) {
+    edit(numCuenta) {
       this.isEditing = true;
 
-      const found = this.books.find((book) => book.id === id);
+      const busqueda = this.usuarios.find((usuario) => usuario.numCuenta === numCuenta);
 
       this.record = {
-        id: found.id,
-        title: found.title,
-        author: found.author,
-        genre: found.genre,
-        year: found.year,
-        pages: found.pages,
+        numCuenta: busqueda.numCuenta,
+        nombre: busqueda.nombre,
+        fechaNacimiento: busqueda.fechaNacimiento,
+        correo: busqueda.correo,
+        password: busqueda.password,
+        telefono: busqueda.telefono,
+        estado: busqueda.estado,
       };
 
       this.dialog = true;
@@ -216,43 +256,6 @@ export default {
     remove(id) {
       const index = this.books.findIndex((book) => book.id === id);
       this.books.value.splice(index, 1);
-    },
-    reset() {
-      this.books = [
-        {
-          id: 1,
-          title: 'To Kill a Mockingbird',
-          author: 'Harper Lee',
-          genre: 'Fiction',
-          year: 1960,
-          pages: 281,
-        },
-        {
-          id: 2,
-          title: '1984',
-          author: 'George Orwell',
-          genre: 'Dystopian',
-          year: 1949,
-          pages: 328,
-        },
-        {
-          id: 3,
-          title: 'The Great Gatsby',
-          author: 'F. Scott Fitzgerald',
-          genre: 'Fiction',
-          year: 1925,
-          pages: 180,
-        },
-        {
-          id: 4,
-          title: 'Sapiens',
-          author: 'Yuval Noah Harari',
-          genre: 'Non-Fiction',
-          year: 2011,
-          pages: 443,
-        },
-        { id: 5, title: 'Dune', author: 'Frank Herbert', genre: 'Sci-Fi', year: 1965, pages: 412 },
-      ];
     },
   },
 };

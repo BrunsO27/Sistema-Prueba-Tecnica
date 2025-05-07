@@ -8,7 +8,7 @@ const obtenerUsuarios = async (req = request,res = response) => {
 
     // const {q, nombre='No name', apikey='No api key'} = req.query;
 
-    const { limite = 5, desde = 0} = req.query;
+    //const { limite = 5, desde = 0} = req.query;
     /* const usuarios = await Usuario.findAll({
         limit: Number(limite),
         offset: Number(desde),
@@ -30,8 +30,6 @@ const obtenerUsuarios = async (req = request,res = response) => {
             }
         }),
         Usuario.findAll({
-            limit: Number(limite),
-            offset: Number(desde),
             where: {
                 estado: true
             },
