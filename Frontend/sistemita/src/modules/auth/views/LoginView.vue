@@ -87,7 +87,7 @@ export default {
 
         sessionStorage.setItem('token', token);
 
-        this.$router.push('/');
+        this.$router.push({name: 'Crud'});
       } catch (error) {
         this.snackbarMessage = error.response?.data?.msg || 'Error al iniciar sesión';
         this.snackbar = true;

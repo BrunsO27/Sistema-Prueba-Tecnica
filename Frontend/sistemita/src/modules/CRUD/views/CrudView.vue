@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/no-deprecated-v-bind-sync -->
+<!-- eslint-disable vue/valid-v-slot -->
 <template>
   <v-sheet border rounded>
     <v-data-table :headers="headers" :items="usuarios">
@@ -11,6 +13,7 @@
 
           <!-- Boton de login-->
           <v-btn
+            v-if="!verificarAutenticacion()"
             class="me-2"
             prepend-icon="mdi-login"
             rounded="lg"
@@ -19,6 +22,7 @@
             @click="irLogin"
           ></v-btn>
 
+          <!-- Boton de logout-->
           <v-btn
             v-if="verificarAutenticacion()"
             class="me-2"
@@ -27,26 +31,6 @@
             text="Salir"
             border
             @click="logOut"
-          ></v-btn>
-
-          <!-- Boton de carga de data-->
-          <v-btn
-            class="me-2"
-            prepend-icon="mdi-upload-circle"
-            rounded="lg"
-            text="Cargar Data"
-            border
-            @click="cargarData"
-          ></v-btn>
-
-          <!-- Boton de creacion de ususario-->
-          <v-btn
-            class="me-2"
-            prepend-icon="mdi-plus"
-            rounded="lg"
-            text="Crear Usuario"
-            border
-            @click="add"
           ></v-btn>
         </v-toolbar>
       </template>
@@ -79,41 +63,131 @@
     </v-data-table>
   </v-sheet>
 
-  <!-- Dialogo para editar -->
+  <!-- Boton de carga de data-->
+  <v-row justify="center" class="text-center">
+    <v-col>
+      <v-btn
+        class="me-2"
+        prepend-icon="mdi-upload-circle"
+        rounded="lg"
+        text="Cargar Data"
+        border
+        @click="cargarData"
+      ></v-btn>
+
+      <!-- Boton de creacion de ususario-->
+      <v-btn
+        class="me-2"
+        prepend-icon="mdi-plus"
+        rounded="lg"
+        text="Crear Usuario"
+        border
+        @click="add"
+      ></v-btn>
+    </v-col>
+  </v-row>
+
+  <!-- Dialogo para editar o crear-->
   <v-dialog v-model="dialog" max-width="500">
     <v-card
-      :subtitle="`${isEditing ? 'Update' : 'Create'} your favorite book`"
-      :title="`${isEditing ? 'Edit' : 'Add'} a Book`"
+      :subtitle="`${isEditing ? 'Actualiza' : 'Crea'} a tu usuario`"
+      :title="`${isEditing ? 'Edita' : 'Añade'} a un usuario`"
     >
       <template v-slot:text>
         <v-row>
           <v-col cols="12">
-            <v-text-field v-model="record.title" label="Title"></v-text-field>
+            <v-text-field
+              prepend-icon="mdi-numeric"
+              v-model="record.numCuenta"
+              label="Número de Cuneta"
+            ></v-text-field>
+          </v-col>
+
+          <v-col cols="12">
+            <v-text-field
+              prepend-icon="mdi-account-circle"
+              v-model="record.nombre"
+              label="Nombre Completo"
+            ></v-text-field>
+          </v-col>
+
+          <!--
+          <v-col cols="12" md="6">
+           
+            <v-menu
+              v-model="menu"
+              :close-on-content-click="false"
+              :return-value.sync="record.fechaNacimiento"
+              transition="slide-x-reverse-transition"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                
+                <v-text-field
+                  v-model="record.fechaNacimiento"
+                  label="Fecha de nacimiento"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              
+              <v-date-picker
+                v-model="record.fechaNacimiento"
+                @input="menu = false"
+              ></v-date-picker>
+            </v-menu>
+          </v-col>
+        -->
+
+          <v-col cols="12" md="6">
+            <v-menu
+              v-model="menu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+            >
+              <template v-slot:activator="{ props }">
+                <v-text-field
+                  v-model="record.fechaNacimiento"
+                  label="Fecha de nacimiento"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="props"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="record.fechaNacimiento"
+                @update:model-value="formatFechaNacimiento"
+              ></v-date-picker>
+            </v-menu>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-text-field v-model="record.author" label="Author"></v-text-field>
+            <v-text-field
+              type="tel"
+              prepend-icon="mdi-phone"
+              v-model="record.telefono"
+              label="Numero de teléfono"
+            ></v-text-field>
           </v-col>
 
-          <v-col cols="12" md="6">
-            <v-select
-              v-model="record.genre"
-              :items="['Fiction', 'Dystopian', 'Non-Fiction', 'Sci-Fi']"
-              label="Genre"
-            ></v-select>
+          <v-col cols="12">
+            <v-text-field
+              type="email"
+              prepend-icon="mdi-email"
+              v-model="record.correo"
+              label="Correo electronico"
+            ></v-text-field>
           </v-col>
 
-          <v-col cols="12" md="6">
-            <v-number-input
-              v-model="record.year"
-              :max="adapter.getYear(adapter.date())"
-              :min="1"
-              label="Year"
-            ></v-number-input>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-number-input v-model="record.pages" :min="1" label="Pages"></v-number-input>
+          <v-col cols="12">
+            <v-text-field
+              type="password"
+              prepend-icon="mdi-key"
+              v-model="record.password"
+              label="Contraseña"
+            ></v-text-field>
           </v-col>
         </v-row>
       </template>
@@ -121,11 +195,11 @@
       <v-divider></v-divider>
 
       <v-card-actions class="bg-surface-light">
-        <v-btn text="Cancel" variant="plain" @click="dialog = false"></v-btn>
+        <v-btn text="Cancelar" variant="plain" @click="dialog = false"></v-btn>
 
         <v-spacer></v-spacer>
 
-        <v-btn text="Save" @click="save"></v-btn>
+        <v-btn text="Guardar" @click="save"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -147,7 +221,7 @@
 </template>
 
 <script>
-import { ref, shallowRef, onMounted } from 'vue';
+import { usuariosApi } from '@/api/UsuariosApi';
 import { useDate } from 'vuetify';
 
 export default {
@@ -155,9 +229,10 @@ export default {
   data() {
     const adapter = useDate();
     return {
-      dialog: false, // Estado inicial del diálogo
+      dialog: false,
       isEditing: false,
       dialogAdvertencia: false,
+      menu: false,
       record: {
         numCuenta: '',
         nombre: '',
@@ -185,11 +260,12 @@ export default {
   methods: {
     verificarAutenticacion() {
       const token = sessionStorage.getItem('token');
-      return !!token; // true si hay token
+      return !!token;
     },
     logOut() {
       sessionStorage.removeItem('token');
-      this.$router.replace('/');
+      this.usuarios = [];
+      this.$router.replace({ name: 'Crud' });
     },
     irLogin() {
       if (this.verificarAutenticacion()) {
@@ -197,15 +273,19 @@ export default {
       } else {
         this.$router.push('/login');
       }
-
     },
-    cargarData() {
+    async cargarData() {
       if (!this.verificarAutenticacion()) {
         this.dialogAdvertencia = true;
         return;
       }
 
-      
+      try {
+        const respuesta = await usuariosApi.get('/usuario');
+        this.usuarios = respuesta.data.usuarios;
+      } catch (error) {
+        console.error(error);
+      }
     },
     add() {
       if (!this.verificarAutenticacion()) {
