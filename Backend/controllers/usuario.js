@@ -45,7 +45,7 @@ const obtenerUsuarios = async (req = request,res = response) => {
 const actualizarUsuarios = async (req,res) => {
 
     const numCuenta = req.params.numCuenta;
-    const { numCuenta: _,password, correo, ...resto } = req.body;
+    const { numCuenta: _,password, ...resto } = req.body;
 
     if ( password ) {
         const salt = bcryptjs.genSaltSync();

@@ -111,35 +111,6 @@
             ></v-text-field>
           </v-col>
 
-          <!--
-          <v-col cols="12" md="6">
-           
-            <v-menu
-              v-model="menu"
-              :close-on-content-click="false"
-              :return-value.sync="record.fechaNacimiento"
-              transition="slide-x-reverse-transition"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                
-                <v-text-field
-                  v-model="record.fechaNacimiento"
-                  label="Fecha de nacimiento"
-                  prepend-icon="mdi-calendar"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              
-              <v-date-picker
-                v-model="record.fechaNacimiento"
-                @input="menu = false"
-              ></v-date-picker>
-            </v-menu>
-          </v-col>
-        -->
-
           <v-col cols="12" md="6">
             <v-menu
               v-model="menu"
@@ -242,7 +213,6 @@ export default {
         telefono: '',
         estado: true,
       },
-      mensaje: 'Componente Cargado',
       adapter,
       usuarios: [],
       headers: [
@@ -304,6 +274,7 @@ export default {
         estado: true,
       };
       this.dialog = true;
+
     },
     edit(numCuenta) {
       this.isEditing = true;
@@ -322,20 +293,49 @@ export default {
 
       this.dialog = true;
     },
-    save() {
+    async save() {
       if (this.isEditing) {
-        const index = this.books.findIndex((book) => book.id === this.record.id);
-        this.books[index] = this.record;
+        const index = this.usuarios.findIndex((usuario) => usuario.numCuenta === this.record.numCuenta);
+        this.usuarios[index] = this.record;
+
+        try {
+          await usuariosApi.put(`/usuario/${this.record.numCuenta}`, this.record);
+        } catch (error) {
+          console.error(error);
+        }
+
       } else {
-        this.record.id = this.books.length + 1;
-        this.books.push(this.record);
+        try {
+          this.usuarios.push(this.record);
+          await usuariosApi.post('/usuario', this.record);
+        } catch (error) {
+          console.error(error);
+        }
       }
 
       this.dialog = false;
     },
-    remove(id) {
-      const index = this.books.findIndex((book) => book.id === id);
+    async remove(numCuenta) {
+      const index = this.usuarios.findIndex((usuario) => usuario.numCuenta === numCuenta);
+
+      try {
+        await usuariosApi.delete(`/usuario/${numCuenta}`);
+        this.usuarios.splice(index, 1);
+      } catch (error) {
+        console.error(error);
+      }
+
       this.books.value.splice(index, 1);
+    },
+    formatFechaNacimiento(fecha) {
+      if (fecha) {
+        const date = new Date(fecha);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes en formato 2 dígitos
+        const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
+        this.record.fechaNacimiento = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
+      }
+      this.menu = false; // Cierra el menú después de seleccionar la fecha
     },
   },
 };
