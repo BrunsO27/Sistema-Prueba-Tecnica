@@ -12,15 +12,15 @@
           <v-col cols="12">
             <v-text-field
               prepend-icon="mdi-numeric"
-              v-model="record.numCuenta"
-              label="Número de Cuneta"
+              v-model="localRecord.numCuenta"
+              label="Número de Cuenta"
             ></v-text-field>
           </v-col>
 
           <v-col cols="12">
             <v-text-field
               prepend-icon="mdi-account-circle"
-              v-model="record.nombre"
+              v-model="localRecord.nombre"
               label="Nombre Completo"
             ></v-text-field>
           </v-col>
@@ -34,7 +34,7 @@
             >
               <template v-slot:activator="{ props }">
                 <v-text-field
-                  v-model="record.fechaNacimiento"
+                  v-model="localRecord.fechaNacimiento"
                   label="Fecha de nacimiento"
                   prepend-icon="mdi-calendar"
                   readonly
@@ -42,7 +42,7 @@
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="record.fechaNacimiento"
+                v-model="localRecord.fechaNacimiento"
                 @update:model-value="formatFechaNacimiento"
               ></v-date-picker>
             </v-menu>
@@ -52,7 +52,7 @@
             <v-text-field
               type="tel"
               prepend-icon="mdi-phone"
-              v-model="record.telefono"
+              v-model="localRecord.telefono"
               label="Numero de teléfono"
             ></v-text-field>
           </v-col>
@@ -61,7 +61,7 @@
             <v-text-field
               type="email"
               prepend-icon="mdi-email"
-              v-model="record.correo"
+              v-model="localRecord.correo"
               label="Correo electronico"
             ></v-text-field>
           </v-col>
@@ -70,7 +70,7 @@
             <v-text-field
               type="password"
               prepend-icon="mdi-key"
-              v-model="record.password"
+              v-model="localRecord.password"
               label="Contraseña"
             ></v-text-field>
           </v-col>
@@ -118,11 +118,12 @@ export default {
   data() {
     return {
       menu: false,
+      localRecord: { ...this.record},
     };
   },
   methods: {
     save() {
-      this.$emit('save');
+      this.$emit('save', this.localRecord);
       this.$emit('update:dialog', false)
     },
     formatFechaNacimiento(fecha) {
@@ -131,11 +132,19 @@ export default {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes en formato 2 dígitos
         const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
-        this.record.fechaNacimiento = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
+        this.localRecord.fechaNacimiento = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
       }
       this.menu = false; // Cierra el menú después de seleccionar la fecha
     },
   },
+  watch: {
+    record: {
+      handler(newRecord) {
+        this.localRecord = { ...newRecord }; // Actualiza localRecord cuando record cambie
+      },
+      deep: true, // Observa cambios profundos en el objeto
+    },
+  },  
   emits: [
     'update:dialog',
     'save',

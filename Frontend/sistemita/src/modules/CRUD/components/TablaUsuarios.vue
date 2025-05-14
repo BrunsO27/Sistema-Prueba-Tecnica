@@ -31,6 +31,16 @@
             border
             @click="add"
           ></v-btn>
+
+          <v-btn
+            v-if="verificacion"
+            class="me-2"
+            prepend-icon="mdi-login"
+            rounded="lg"
+            text="Salir"
+            border
+            @click="logOut"
+          ></v-btn>
         </v-toolbar>
       </template>
 
@@ -73,7 +83,10 @@
   />
 
   <!-- Dialogo de Advertencia -->
-  <DialogoAdvertencia :dialogAdvertencia="dialogAdvertencia" @close="dialogAdvertencia = false" />
+  <DialogoAdvertencia
+    :dialogAdvertencia="dialogAdvertencia"
+    @cambio-dialogo="dialogAdvertencia = false"
+  />
 </template>
 
 <script>
@@ -92,10 +105,6 @@ export default {
     usuarios: {
       type: Array,
       default: () => [],
-    },
-    terminoSesion: {
-      type: Boolean,
-      default: false,
     },
   },
   data() {
@@ -164,22 +173,23 @@ export default {
 
       this.dialog = true;
     },
-    async save() {
+    async save(localRecord) {
+
       if (this.isEditing) {
         const index = this.localUsuarios.findIndex(
-          (usuario) => usuario.numCuenta === this.record.numCuenta,
+          (usuario) => usuario.numCuenta === localRecord.numCuenta,
         );
 
         try {
-          await usuariosApi.put(`/usuario/${this.record.numCuenta}`, this.record);
-          this.localUsuarios[index] = this.record;
+          await usuariosApi.put(`/usuario/${localRecord.numCuenta}`, localRecord);
+          this.localUsuarios[index] = localRecord;
         } catch (error) {
           console.error(error);
         }
       } else {
         try {
-          this.localUsuarios.push(this.record);
-          await usuariosApi.post('/usuario', this.record);
+          this.localUsuarios.push(localRecord);
+          await usuariosApi.post('/usuario', localRecord);
         } catch (error) {
           console.error(error);
         }
@@ -198,13 +208,6 @@ export default {
       }
 
       this.localUsuarios.value.splice(index, 1);
-    },
-  },
-  watch: {
-    terminoSesion(newValue) {
-      if (newValue) {
-        this.localUsuarios = [];
-      }
     },
   },
   components: {

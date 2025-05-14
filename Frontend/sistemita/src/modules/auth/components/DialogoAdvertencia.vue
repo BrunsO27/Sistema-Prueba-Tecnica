@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :v-model="dialogAdvertencia" max-width="400">
+  <v-dialog :model-value="dialogAdvertencia" max-width="400">
     <v-card>
       <v-card-title class="text-h6"> Acceso Denegado </v-card-title>
 
@@ -7,21 +7,21 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text="Cerrar" @click="dialogAdvertencia = false"></v-btn>
+        <v-btn text="Cerrar" @click="$emit('cambio-dialogo', false)"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script> 
-
+<script>
 export default {
-    name: 'DialogoAdvertencia',
-    props: {
-        dialogAdvertencia: {
-            type: Boolean,
-            default: false
-        }
+  name: 'DialogoAdvertencia',
+  props: {
+    dialogAdvertencia: {
+      type: Boolean,
+      default: false,
     },
-}
-</script> 
+  },
+  emits: ['cambio-dialogo'],
+};
+</script>

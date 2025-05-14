@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import CrudView from '@/modules/CRUD/views/CrudView.vue';
+import LoginView from '@/modules/auth/views/LoginView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'Crud',
-      component: CrudView,
+      name: 'Login',
+      component: LoginView,
     },
     {
-      path: '/login',
-      name: 'Login',
-      component: () => import('@/modules/auth/views/LoginView.vue'),
+      path: '/crud',
+      name: 'Crud',
+      component: () => import('@/modules/CRUD/views/CrudView.vue'),
     },
   ],
 });

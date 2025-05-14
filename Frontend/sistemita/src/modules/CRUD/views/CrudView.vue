@@ -3,38 +3,16 @@
 <template>
   <v-sheet border rounded>
     <!-- Tabal de usuarios -->
-    <TablaUsuarios
-      :usuarios="usuarios"
-      :headers="headers"
-      :terminoSesion="terminoSesion"/>
+    <TablaUsuarios :usuarios="usuarios" :headers="headers" :terminoSesion="terminoSesion" />
   </v-sheet>
 
   <v-row justify="center" class="text-center">
     <v-col>
-      <!-- Boton de login-->
-      <v-btn
-        v-if="!verificarAutenticacion()"
-        class="me-2"
-        prepend-icon="mdi-login"
-        rounded="lg"
-        text="Ingresar"
-        border
-        @click="irLogin"
-      ></v-btn>
 
       <!-- Boton de logout-->
-      <v-btn
-        v-if="verificarAutenticacion()"
-        class="me-2"
-        prepend-icon="mdi-login"
-        rounded="lg"
-        text="Salir"
-        border
-        @click="logOut"
-      ></v-btn>
+      
     </v-col>
   </v-row>
-  
 </template>
 
 <script>
@@ -45,6 +23,7 @@ export default {
   name: 'CrudView',
   data() {
     return {
+      verificacion: verificarAutenticacion(),
       terminoSesion: false,
       usuarios: [],
       headers: [
@@ -60,25 +39,13 @@ export default {
     };
   },
   components: {
-    TablaCrud,
+    TablaUsuarios,
   },
   methods: {
     verificarAutenticacion,
-    logOut() {
-      this.terminoSesion = true;
-      sessionStorage.removeItem('token');
-      this.$router.replace({ name: 'Crud' });
-    },
-    irLogin() {
-      if (verificarAutenticacion()) {
-        this.$router.go('/');
-      } else {
-        this.$router.push('/login');
-      }
-    },
   },
   components: {
     TablaUsuarios,
-  }
+  },
 };
 </script>
