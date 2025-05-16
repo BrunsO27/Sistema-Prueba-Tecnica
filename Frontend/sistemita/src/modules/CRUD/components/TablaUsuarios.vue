@@ -9,7 +9,7 @@
           <v-toolbar-title>
             <v-icon color="medium-emphasis" icon="mdi-database" size="x-small" start></v-icon>
 
-            Sistema CRUD de Usuarios
+            Tabla de Usuarios
           </v-toolbar-title>
 
           <!-- Boton de carga de data-->
@@ -19,7 +19,7 @@
             rounded="lg"
             text="Cargar Data"
             border
-            @click="cargarData"
+            @click="obtenerData"
           ></v-btn>
 
           <!-- Boton de creacion de ususario-->
@@ -81,19 +81,20 @@
     @save="save"
     @close="dialog = false"
   />
-
-  <!-- Dialogo de Advertencia -->
-  <DialogoAdvertencia
-    :dialogAdvertencia="dialogAdvertencia"
-    @cambio-dialogo="dialogAdvertencia = false"
-  />
 </template>
 
 <script>
-import verificarAutenticacion from '@/modules/auth/actions/VerifiacarAutuenticacion';
-import DialogoAdvertencia from '@/modules/auth/components/DialogoAdvertencia.vue';
 import FormularioUsuarios from './FormularioUsuarios.vue';
-import { usuariosApi } from '@/api/UsuariosApi';
+
+import usuario from '@/models/Usuario';
+
+import verificarAutenticacion from '@/modules/auth/actions/VerifiacarAutuenticacion';
+import {cargarData, 
+        obtenerUsuarios,
+        guardarUsuario, 
+        eliminarUsuario, 
+      } from '../actions/index';
+import logOut from '@/modules/auth/actions/LogOut';      
 
 export default {
   name: 'TablaUsuarios',
@@ -112,107 +113,41 @@ export default {
       dialog: false,
       isEditing: false,
       dialogAdvertencia: false,
+      verificacion: verificarAutenticacion(),
       localUsuarios: [],
-      record: {
-        numCuenta: '',
-        nombre: '',
-        fechaNacimiento: '',
-        correo: '',
-        password: '',
-        telefono: '',
-        estado: true,
-      },
+      record: usuario(),
     };
   },
   methods: {
     verificarAutenticacion,
-    async cargarData() {
-      if (!verificarAutenticacion()) {
-        this.dialogAdvertencia = true;
-        return;
-      }
-      try {
-        const respuesta = await usuariosApi.get('/usuario');
-        this.localUsuarios = respuesta.data.usuarios;
-      } catch (error) {
-        console.error(error);
-      }
+    logOut,
+    async obtenerData() {
+      this.localUsuarios = await cargarData();
     },
     add() {
-      if (!verificarAutenticacion()) {
-        this.dialogAdvertencia = true;
-        return;
-      }
-
       this.isEditing = false;
-      this.record = {
-        numCuenta: '',
-        nombre: '',
-        fechaNacimiento: '',
-        correo: '',
-        password: '',
-        telefono: '',
-        estado: true,
-      };
+      this.record = usuario();
       this.dialog = true;
     },
     edit(numCuenta) {
       this.isEditing = true;
 
-      const busqueda = this.localUsuarios.find((usuario) => usuario.numCuenta === numCuenta);
-
-      this.record = {
-        numCuenta: busqueda.numCuenta,
-        nombre: busqueda.nombre,
-        fechaNacimiento: busqueda.fechaNacimiento,
-        correo: busqueda.correo,
-        password: busqueda.password,
-        telefono: busqueda.telefono,
-        estado: busqueda.estado,
-      };
+      this.record = obtenerUsuarios(this.localUsuarios, numCuenta);
 
       this.dialog = true;
     },
     async save(localRecord) {
 
-      if (this.isEditing) {
-        const index = this.localUsuarios.findIndex(
-          (usuario) => usuario.numCuenta === localRecord.numCuenta,
-        );
-
-        try {
-          await usuariosApi.put(`/usuario/${localRecord.numCuenta}`, localRecord);
-          this.localUsuarios[index] = localRecord;
-        } catch (error) {
-          console.error(error);
-        }
-      } else {
-        try {
-          this.localUsuarios.push(localRecord);
-          await usuariosApi.post('/usuario', localRecord);
-        } catch (error) {
-          console.error(error);
-        }
-      }
+      await guardarUsuario(this.localUsuarios, localRecord, this.isEditing);
 
       this.dialog = false;
     },
     async remove(numCuenta) {
-      const index = this.usuarios.findIndex((usuario) => usuario.numCuenta === numCuenta);
-
-      try {
-        await usuariosApi.delete(`/usuario/${numCuenta}`);
-        this.localUsuarios.splice(index, 1);
-      } catch (error) {
-        console.error(error);
-      }
-
-      this.localUsuarios.value.splice(index, 1);
+      await eliminarUsuario(this.localUsuarios, numCuenta);      
     },
   },
   components: {
     FormularioUsuarios,
-    DialogoAdvertencia,
   },
 };
 </script>

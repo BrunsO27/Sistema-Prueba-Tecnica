@@ -6,7 +6,7 @@
           <img src="@/assets/logoCompuesto.png" alt="Facultad de Química UNAM" />
         </div>
         <v-spacer></v-spacer>
-        <div class="white--text departamento font-weight-bold">Estancias Facultad de Química</div>
+        <div class="white--text departamento font-weight-bold">Sistema CRUD de Usuarios</div>
       </v-row>
     </v-container>
   </v-toolbar-title>

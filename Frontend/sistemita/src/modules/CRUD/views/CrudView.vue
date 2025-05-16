@@ -3,7 +3,7 @@
 <template>
   <v-sheet border rounded>
     <!-- Tabal de usuarios -->
-    <TablaUsuarios :usuarios="usuarios" :headers="headers" :terminoSesion="terminoSesion" />
+    <TablaUsuarios :usuarios="usuarios" :headers="headers" />
   </v-sheet>
 
   <v-row justify="center" class="text-center">
@@ -16,15 +16,12 @@
 </template>
 
 <script>
-import verificarAutenticacion from '@/modules/auth/actions/VerifiacarAutuenticacion';
 import TablaUsuarios from '../components/TablaUsuarios.vue';
 
 export default {
   name: 'CrudView',
   data() {
     return {
-      verificacion: verificarAutenticacion(),
-      terminoSesion: false,
       usuarios: [],
       headers: [
         { title: 'Número de Cuenta', key: 'numCuenta', align: 'start' },
@@ -37,12 +34,6 @@ export default {
         { title: '', key: 'acciones', align: 'end' },
       ],
     };
-  },
-  components: {
-    TablaUsuarios,
-  },
-  methods: {
-    verificarAutenticacion,
   },
   components: {
     TablaUsuarios,
