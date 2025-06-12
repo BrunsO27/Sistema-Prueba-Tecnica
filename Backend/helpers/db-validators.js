@@ -9,6 +9,14 @@ const existeNumCuentaUsuario = async( numCuenta = 0 ) => {
     }
 }
 
+const numCuentaEnBD = async( numCuenta = 0 ) => {
+    const existe = await Usuario.findByPk(numCuenta);
+
+    if (existe) {
+        throw new Error(`El usuario con numero de cuenta ${ numCuenta } ya existe`);
+    }
+}
+
 const existeCorreo = async( correo = '') => {
     const exiteMail = await Usuario.findOne({
         where: {
@@ -24,4 +32,5 @@ const existeCorreo = async( correo = '') => {
 module.exports = {
     existeCorreo,
     existeNumCuentaUsuario,
+    numCuentaEnBD,
 }
