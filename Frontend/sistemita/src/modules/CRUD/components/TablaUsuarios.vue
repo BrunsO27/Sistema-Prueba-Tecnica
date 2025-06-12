@@ -18,6 +18,7 @@
             prepend-icon="mdi-upload-circle"
             rounded="lg"
             text="Cargar Data"
+            :disabled="load"
             border
             @click="obtenerData"
           ></v-btn>
@@ -29,6 +30,7 @@
             rounded="lg"
             text="Crear Usuario"
             border
+            :disabled="!load"
             @click="add"
           ></v-btn>
 
@@ -110,6 +112,7 @@ export default {
   },
   data() {
     return {
+      load: false,
       dialog: false,
       isEditing: false,
       dialogAdvertencia: false,
@@ -123,6 +126,7 @@ export default {
     logOut,
     async obtenerData() {
       this.localUsuarios = await cargarData();
+      this.load = true;
     },
     add() {
       this.isEditing = false;

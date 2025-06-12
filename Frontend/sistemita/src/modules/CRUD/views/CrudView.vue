@@ -5,14 +5,6 @@
     <!-- Tabal de usuarios -->
     <TablaUsuarios :usuarios="usuarios" :headers="headers" />
   </v-sheet>
-
-  <v-row justify="center" class="text-center">
-    <v-col>
-
-      <!-- Boton de logout-->
-      
-    </v-col>
-  </v-row>
 </template>
 
 <script>
@@ -31,7 +23,7 @@ export default {
         { title: 'Contraseña', key: 'password', align: 'start' },
         { title: 'Teléfono', key: 'telefono', align: 'center' },
         { title: 'Estado', key: 'estado', align: 'center' },
-        { title: '', key: 'acciones', align: 'end' },
+        { title: 'Acciones', key: 'acciones', align: 'end' },
       ],
     };
   },
