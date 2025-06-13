@@ -3,7 +3,7 @@
 
 <template>
   <v-sheet border rounded>
-    <v-data-table :headers="headers" :items="localUsuarios">
+    <v-data-table :headers="props.headers" :items="localUsuarios">
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>
@@ -77,7 +77,7 @@
   <!-- Dialogo para editar/crar usuarios-->
   <FormularioUsuarios
     :dialog="dialog"
-    :record.sync="record"
+    :record="record"
     :isEditing="isEditing"
     @update:dialog="dialog = $event"
     @save="save"
@@ -85,73 +85,117 @@
   />
 </template>
 
-<script>
+<script setup>
 import FormularioUsuarios from './FormularioUsuarios.vue';
 
 import usuario from '@/models/Usuario';
 
 import verificarAutenticacion from '@/modules/auth/actions/VerifiacarAutuenticacion';
-import {cargarData, 
-        obtenerUsuarios,
-        guardarUsuario, 
-        eliminarUsuario, 
-      } from '../actions/index';
-import logOut from '@/modules/auth/actions/LogOut';      
+import { cargarData, obtenerUsuarios, guardarUsuario, eliminarUsuario } from '../actions/index';
+import logOut from '@/modules/auth/actions/LogOut';
 
-export default {
-  name: 'TablaUsuarios',
-  props: {
-    headers: {
-      type: Array,
-      default: () => [],
-    },
-    usuarios: {
-      type: Array,
-      default: () => [],
-    },
+// Script usando sintaxis de Options API
+
+// export default {
+//   name: 'TablaUsuarios',
+//   props: {
+//     headers: {
+//       type: Array,
+//       default: () => [],
+//     },
+//     usuarios: {
+//       type: Array,
+//       default: () => [],
+//     },
+//   },
+//   data() {
+//     return {
+//       load: false,
+//       dialog: false,
+//       isEditing: false,
+//       dialogAdvertencia: false,
+//       verificacion: verificarAutenticacion(),
+//       localUsuarios: [],
+//       record: usuario(),
+//     };
+//   },
+//   methods: {
+//     verificarAutenticacion,
+//     logOut,
+//     async obtenerData() {
+//       this.localUsuarios = await cargarData();
+//       this.load = true;
+//     },
+//     add() {
+//       this.isEditing = false;
+//       this.record = usuario();
+//       this.dialog = true;
+//     },
+//     edit(numCuenta) {
+//       this.isEditing = true;
+
+//       this.record = obtenerUsuarios(this.localUsuarios, numCuenta);
+
+//       this.dialog = true;
+//     },
+//     async save(localRecord) {
+//       await guardarUsuario(this.localUsuarios, localRecord, this.isEditing);
+
+//       this.dialog = false;
+//     },
+//     async remove(numCuenta) {
+//       await eliminarUsuario(this.localUsuarios, numCuenta);
+//     },
+//   },
+//   components: {
+//     FormularioUsuarios,
+//   },
+// };
+
+// Script usando sintaxis de Composition API
+import { ref } from 'vue';
+
+const props = defineProps({
+  headers: {
+    type: Array,
+    default: () => [],
   },
-  data() {
-    return {
-      load: false,
-      dialog: false,
-      isEditing: false,
-      dialogAdvertencia: false,
-      verificacion: verificarAutenticacion(),
-      localUsuarios: [],
-      record: usuario(),
-    };
+  usuarios: {
+    type: Array,
+    default: () => [],
   },
-  methods: {
-    verificarAutenticacion,
-    logOut,
-    async obtenerData() {
-      this.localUsuarios = await cargarData();
-      this.load = true;
-    },
-    add() {
-      this.isEditing = false;
-      this.record = usuario();
-      this.dialog = true;
-    },
-    edit(numCuenta) {
-      this.isEditing = true;
+});
 
-      this.record = obtenerUsuarios(this.localUsuarios, numCuenta);
+const load = ref(false);
+const dialog = ref(false);
+const isEditing = ref(false);
+const verificacion = verificarAutenticacion();
+const localUsuarios = ref([]);
+const record = ref(usuario());
 
-      this.dialog = true;
-    },
-    async save(localRecord) {
+const obtenerData = async () => {
+  localUsuarios.value = await cargarData();
+  load.value = true;
+}
 
-      await guardarUsuario(this.localUsuarios, localRecord, this.isEditing);
+const add = () => {
+  isEditing.value = false;
+  record.value = usuario();
+  dialog.value = true;
+}
 
-      this.dialog = false;
-    },
-    async remove(numCuenta) {
-      await eliminarUsuario(this.localUsuarios, numCuenta);      
-    },
-  },
-  components: {
-    FormularioUsuarios,
-  },
-};
+const edit = (numCuenta) => {
+  isEditing.value = true;
+  record.value = obtenerUsuarios(localUsuarios.value, numCuenta);
+  dialog.value = true;
+}
+
+const save = async (localRecord) => {
+  await guardarUsuario(localUsuarios.value, localRecord.value, isEditing.value);
+  dialog.value = false;
+}
+
+const remove = async (numCuenta) => {
+  await eliminarUsuario(localUsuarios.value, numCuenta);
+}
 </script>

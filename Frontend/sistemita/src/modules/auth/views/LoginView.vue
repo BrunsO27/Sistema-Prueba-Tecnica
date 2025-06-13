@@ -52,39 +52,76 @@
   </template>
 </template>
 
-<script>
+<script setup>
 import login from '../actions/LogIn';
 import recuperarCredenciales from '../actions/RecuperarCredenciales';
 
-export default {
-  name: 'LoginView',
-  data() {
-    return {
-      autenticacion: '',
-      password: '',
-      snackbar: false,
-      snackbarMessage: '',
-      rememberMe: false,
-    };
-  },
-  methods: {
-    async accder() {
-      const exito = await login(this.autenticacion, this.password, this.rememberMe);
-      if (exito.accedio) {
-        this.$router.push({ name: 'Crud' });
-      } else {
-        this.snackbarMessage = exito.mensajeError;
-        console.log(this.snackbarMessage);
-        this.snackbar = true;
-      }
-    },
-  },
-  mounted() {
-    const credenciales = recuperarCredenciales();
+// Script en sintaxis de Options API
 
-    this.autenticacion = credenciales.autenticacion;
-    this.password = credenciales.password;
-    this.rememberMe = credenciales.rememberMe;
-  },
-};
+// export default {
+//   name: 'LoginView',
+//   data() {
+//     return {
+//       autenticacion: '',
+//       password: '',
+//       snackbar: false,
+//       snackbarMessage: '',
+//       rememberMe: false,
+//     };
+//   },
+//   methods: {
+//     async accder() {
+//       const exito = await login(this.autenticacion, this.password, this.rememberMe);
+//       if (exito.accedio) {
+//         this.$router.push({ name: 'Crud' });
+//       } else {
+//         this.snackbarMessage = exito.mensajeError;
+//         console.log(this.snackbarMessage);
+//         this.snackbar = true;
+//       }
+//     },
+//   },
+//   mounted() {
+//     const credenciales = recuperarCredenciales();
+
+//     this.autenticacion = credenciales.autenticacion;
+//     this.password = credenciales.password;
+//     this.rememberMe = credenciales.rememberMe;
+//   },
+// };
+
+// Script en sitaxis de Composition API
+
+import { ref, onMounted} from 'vue';
+import { useRouter } from 'vue-router'
+
+const autenticacion = ref('');
+const password = ref('');
+const snackbar = ref(false);
+const snackbarMessage = ref('');
+const rememberMe = ref(false);
+
+const router = useRouter();;
+
+const accder = async () => {
+  const exito = await login(autenticacion.value, password.value, rememberMe.value);
+  if (exito.accedio) {
+    router.push({ name: 'Crud'});
+  } else {
+    snackbarMessage.value = exito.mensajeError;
+    console.log(snackbarMessage.value);
+    snackbar.value = true;
+  }
+}
+
+onMounted(() => {
+  const credenciales = recuperarCredenciales();
+
+  autenticacion.value = credenciales.autenticacion;
+  password.value = credenciales.password;
+  rememberMe.value = credenciales.rememberMe;
+})
+
+
+
 </script>

@@ -14,7 +14,7 @@
       :title="`${isEditing ? 'Edita' : 'Añade'} a un usuario`"
     >
       <template v-slot:text>
-        <v-form ref="form" v-model="form" validate-on="input">
+        <v-form ref="formRef" v-model="formValid" validate-on="input">
           <v-row>
             <v-col cols="12">
               <v-text-field
@@ -30,7 +30,7 @@
                 validate-on="input"
                 persistent-hint
                 counter="9"
-              ></v-text-field>
+              />
             </v-col>
 
             <v-col cols="12">
@@ -42,7 +42,7 @@
                 validate-on="input"
                 persistent-hint
                 counter="200"
-              ></v-text-field>
+              />
             </v-col>
 
             <v-col cols="12" md="6">
@@ -62,12 +62,12 @@
                     :rules="[rules.validarCampoVacio]"
                     validate-on="input"
                     persistent-hint
-                  ></v-text-field>
+                  />
                 </template>
                 <v-date-picker
                   v-model="localRecord.fechaNacimiento"
                   @update:model-value="formatFechaNacimiento"
-                ></v-date-picker>
+                />
               </v-menu>
             </v-col>
 
@@ -76,7 +76,7 @@
                 type="tel"
                 prepend-icon="mdi-phone"
                 v-model="localRecord.telefono"
-                label="Numero de teléfono"
+                label="Número de teléfono"
                 :rules="[
                   rules.validarCampoVacio,
                   rules.validarNumeros,
@@ -86,7 +86,7 @@
                 validate-on="input"
                 persistent-hint
                 counter="10"
-              ></v-text-field>
+              />
             </v-col>
 
             <v-col cols="12">
@@ -94,12 +94,12 @@
                 type="email"
                 prepend-icon="mdi-email"
                 v-model="localRecord.correo"
-                label="Correo electronico"
+                label="Correo electrónico"
                 :rules="[rules.validarCampoVacio, rules.validarCorreo]"
                 validate-on="input"
                 persistent-hint
                 counter="200"
-              ></v-text-field>
+              />
             </v-col>
 
             <v-col cols="12">
@@ -116,7 +116,7 @@
                 validate-on="input"
                 counter="255"
                 persistent-hint
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
         </v-form>
@@ -125,17 +125,96 @@
       <v-divider></v-divider>
 
       <v-card-actions class="bg-surface-light">
-        <v-btn text="Cancelar" variant="plain" @click="$emit('update:dialog', false)"></v-btn>
-
-        <v-spacer></v-spacer>
-
-        <v-btn text="Guardar" @click="save" :disabled="!form"></v-btn>
+        <v-btn text="Cancelar" variant="plain" @click="$emit('update:dialog', false)" />
+        <v-spacer />
+        <v-btn text="Guardar" @click="save" :disabled="!formValid" />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+//Script usando sintaxis de Options API
+
+// import {
+//   validarCampoVacio,
+//   validarCorreo,
+//   validarPassword,
+//   validarNumeros,
+//   validarLongitudMaxima,
+//   validarLongitudMinima,
+// } from '@/modules/Commun/rules/Rules';
+
+// export default {
+//   name: 'FormularioUsuarios',
+//   props: {
+//     dialog: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     isEditing: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     record: {
+//       type: Object,
+//       default: () => ({
+//         numCuenta: '',
+//         nombre: '',
+//         fechaNacimiento: '',
+//         correo: '',
+//         password: '',
+//         telefono: '',
+//         estado: true,
+//       }),
+//     },
+//   },
+//   data() {
+//     return {
+//       menu: false,
+//       form: false,
+//       localRecord: { ...this.record },
+//       rules: {
+//         validarCampoVacio,
+//         validarCorreo,
+//         validarPassword,
+//         validarNumeros,
+//         validarLongitudMaxima,
+//         validarLongitudMinima,
+//       },
+//     };
+//   },
+//   methods: {
+//     save() {
+//       if (!this.$refs.form.validate()) return;
+
+//       this.$emit('save', this.localRecord);
+//       this.$emit('update:dialog', false);
+//     },
+//     formatFechaNacimiento(fecha) {
+//       if (fecha) {
+//         const date = new Date(fecha);
+//         const year = date.getFullYear();
+//         const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes en formato 2 dígitos
+//         const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
+//         this.localRecord.fechaNacimiento = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
+//       }
+//       this.menu = false; // Cierra el menú después de seleccionar la fecha
+//     },
+//   },
+//   watch: {
+//     record: {
+//       handler(newRecord) {
+//         this.localRecord = { ...newRecord }; // Actualiza localRecord cuando record cambie
+//       },
+//       deep: true, // Observa cambios profundos en el objeto
+//     },
+//   },
+//   emits: ['update:dialog', 'save'],
+// };
+
+// Script usando sintaxis de Composition API
+import { ref, watch } from 'vue';
 import {
   validarCampoVacio,
   validarCorreo,
@@ -145,71 +224,60 @@ import {
   validarLongitudMinima,
 } from '@/modules/Commun/rules/Rules';
 
-export default {
-  name: 'FormularioUsuarios',
-  props: {
-    dialog: {
-      type: Boolean,
-      default: false,
-    },
-    isEditing: {
-      type: Boolean,
-      default: false,
-    },
-    record: {
-      type: Object,
-      default: () => ({
-        numCuenta: '',
-        nombre: '',
-        fechaNacimiento: '',
-        correo: '',
-        password: '',
-        telefono: '',
-        estado: true,
-      }),
-    },
+const emit = defineEmits(['update:dialog', 'save']);
+const props = defineProps({
+  dialog: Boolean,
+  isEditing: Boolean,
+  record: {
+    type: Object,
+    default: () => ({
+      numCuenta: '',
+      nombre: '',
+      fechaNacimiento: '',
+      correo: '',
+      password: '',
+      telefono: '',
+      estado: true,
+    }),
   },
-  data() {
-    return {
-      menu: false,
-      form: false,
-      localRecord: { ...this.record },
-      rules: {
-        validarCampoVacio,
-        validarCorreo,
-        validarPassword,
-        validarNumeros,
-        validarLongitudMaxima,
-        validarLongitudMinima,
-      },
-    };
-  },
-  methods: {
-    save() {
-      if (!this.$refs.form.validate()) return;
+});
 
-      this.$emit('save', this.localRecord);
-      this.$emit('update:dialog', false);
-    },
-    formatFechaNacimiento(fecha) {
-      if (fecha) {
-        const date = new Date(fecha);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes en formato 2 dígitos
-        const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
-        this.localRecord.fechaNacimiento = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
-      }
-      this.menu = false; // Cierra el menú después de seleccionar la fecha
-    },
-  },
-  watch: {
-    record: {
-      handler(newRecord) {
-        this.localRecord = { ...newRecord }; // Actualiza localRecord cuando record cambie
-      },
-      deep: true, // Observa cambios profundos en el objeto
-    },
-  },
-  emits: ['update:dialog', 'save'],
+const formRef = ref(null);
+const formValid = ref(false);
+const menu = ref(false);
+const localRecord = ref({ ...props.record });
+
+const rules = {
+  validarCampoVacio,
+  validarCorreo,
+  validarPassword,
+  validarNumeros,
+  validarLongitudMaxima,
+  validarLongitudMinima,
 };
+
+watch(
+  () => props.record,
+  (newRecord) => {
+    localRecord.value = { ...newRecord };
+  },
+  { deep: true, immediate: true }
+);
+
+function formatFechaNacimiento(fecha) {
+  if (fecha) {
+    const date = new Date(fecha);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    localRecord.value.fechaNacimiento = `${year}-${month}-${day}`;
+  }
+  menu.value = false;
+}
+
+function save() {
+  if (!formRef.value?.validate()) return;
+  emit('save', localRecord.value);
+  emit('update:dialog', false);
+}
 </script>

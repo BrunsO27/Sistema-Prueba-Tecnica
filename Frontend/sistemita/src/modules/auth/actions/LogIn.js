@@ -12,10 +12,10 @@ const login = async (autenticacion, password, rememberMe) => {
     if (rememberMe) {
       localStorage.setItem('autenticacion', autenticacion);
       localStorage.setItem('password', password);
-    } else [
-        localStorage.removeItem('autenticacion'),
-        localStorage.removeItem('password'),
-    ]
+    } else {
+        localStorage.removeItem('autenticacion');
+        localStorage.removeItem('password');
+    }
 
     sessionStorage.setItem('token', token);
 
